@@ -1,0 +1,33 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "text"
+      },
+      "transport_type": {
+        "type": "text"
+      },
+      "body_type": {
+        "type": "text"
+      },
+      "manufacturer_country": {
+        "type": "text"
+      },
+      "manufacturer_year": {
+        "type": "integer"
+      },
+      "brand": {
+        "type": "text"
+      },
+      "model": {
+        "type": "text"
+      },
+      "price": {
+        "type": "double"
+      },
+      "region": {
+        "type": "text"
+      }
+    }
+  }
+}
