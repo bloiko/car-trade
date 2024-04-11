@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  elastic-test:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.1
+    container_name: car-trade
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
