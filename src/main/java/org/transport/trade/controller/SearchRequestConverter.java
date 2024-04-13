@@ -4,6 +4,8 @@ import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.transport.trade.dto.SearchRequest;
 import org.transport.trade.dto.Sort;
 
@@ -14,16 +16,18 @@ import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
+@Component
 public class SearchRequestConverter {
 
-    private SearchRequestConverter() {
+    private final String indexName;
+
+    public SearchRequestConverter(@Value("${elasticsearch.indexName}") String indexName) {
+        this.indexName = indexName;
     }
 
-    public static final String INDEX_NAME = "car-trade";
-
-    public static co.elastic.clients.elasticsearch.core.SearchRequest buildSearchRequest(SearchRequest searchRequest) {
+    public co.elastic.clients.elasticsearch.core.SearchRequest buildSearchRequest(SearchRequest searchRequest) {
         co.elastic.clients.elasticsearch.core.SearchRequest.Builder builder =
-                new co.elastic.clients.elasticsearch.core.SearchRequest.Builder().index(INDEX_NAME);
+                new co.elastic.clients.elasticsearch.core.SearchRequest.Builder().index(indexName);
 
         List<Query> mustQueries = buildMustQueries(searchRequest);
         if (isNotEmpty(mustQueries)) {

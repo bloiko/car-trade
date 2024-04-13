@@ -15,9 +15,12 @@ public class TransportController {
 
     private final ElasticSearchTransportClient elasticSearchTransportClient;
 
+    private final SearchRequestConverter searchRequestConverter;
+
     @Autowired
-    public TransportController(ElasticSearchTransportClient elasticSearchTransportClient) {
+    public TransportController(ElasticSearchTransportClient elasticSearchTransportClient, SearchRequestConverter searchRequestConverter) {
         this.elasticSearchTransportClient = elasticSearchTransportClient;
+        this.searchRequestConverter = searchRequestConverter;
     }
 
     @GetMapping("/transport/{transportId}")
@@ -46,7 +49,7 @@ public class TransportController {
         notNull(searchRequest, "searchRequest cannot be null");
 
         co.elastic.clients.elasticsearch.core.SearchRequest esSearchRequest =
-                SearchRequestConverter.buildSearchRequest(searchRequest);
+                searchRequestConverter.buildSearchRequest(searchRequest);
 
         return elasticSearchTransportClient.search(esSearchRequest);
     }
