@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.transport.trade.entity.*;
+import org.transport.trade.service.TransportDbSynchronizer;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
 
 import java.math.BigInteger;
@@ -17,9 +18,12 @@ public class TransportsGeneratorController {
 
     private final ElasticSearchTransportClient elasticSearchTransportClient;
 
+    private final TransportDbSynchronizer transportDbSynchronizer;
+
     @Autowired
-    public TransportsGeneratorController(ElasticSearchTransportClient elasticSearchTransportClient) {
+    public TransportsGeneratorController(ElasticSearchTransportClient elasticSearchTransportClient, TransportDbSynchronizer transportDbSynchronizer) {
         this.elasticSearchTransportClient = elasticSearchTransportClient;
+        this.transportDbSynchronizer = transportDbSynchronizer;
     }
 
     @GetMapping("/transports")
@@ -44,5 +48,10 @@ public class TransportsGeneratorController {
                 });
             });
         });
+    }
+
+    @GetMapping("/transports/sync-db")
+    public void syncTransportsToDb() {
+        transportDbSynchronizer.sync();
     }
 }

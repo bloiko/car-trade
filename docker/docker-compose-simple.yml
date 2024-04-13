@@ -9,3 +9,12 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: transports
+    ports:
+      - 3310:3306
