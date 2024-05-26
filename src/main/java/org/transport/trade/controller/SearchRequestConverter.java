@@ -3,7 +3,9 @@ package org.transport.trade.controller;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.transport.trade.dto.SearchRequest;
@@ -45,18 +47,26 @@ public class SearchRequestConverter {
     }
 
     private static List<Query> buildMustQueries(SearchRequest searchRequest) {
+        Query searchTextQuery = null;
+        if (searchRequest.getSearchText() != null && !searchRequest.getSearchText().isEmpty()) {
+            searchTextQuery = Query.of(q -> q.multiMatch(m -> m.query(searchRequest.getSearchText())
+                                                               .fields("brand", "model")
+                                                               .type(TextQueryType.CrossFields)
+                                                               .operator(Operator.And)));
+        }
+
+        Query transportTypeQuery = buildMatchQuery("transportType", searchRequest.getTransportType());
+        Query brandQuery = buildMatchQuery("brand", searchRequest.getBrand());
+        Query modelQuery = buildMatchQuery("model", searchRequest.getModel());
+
+        return Stream.of(searchTextQuery, transportTypeQuery, brandQuery, modelQuery).filter(Objects::nonNull).toList();
+    }
+
+    private static Query buildMatchQuery(String fieldId, String value) {
         Query transportTypeQuery = null;
-        if (searchRequest.getTransportType() != null) {
-            transportTypeQuery =
-                    MatchQuery.of(m -> m.field("transportType").query(searchRequest.getTransportType().name()))
-                              ._toQuery();
+        if (value != null) {
+            transportTypeQuery = MatchQuery.of(m -> m.field(fieldId).query(value))._toQuery();
         }
-
-        Query brandQuery = null;
-        if (searchRequest.getBrand() != null) {
-            brandQuery = MatchQuery.of(m -> m.field("brand").query(searchRequest.getBrand().name()))._toQuery();
-        }
-
-        return Stream.of(transportTypeQuery, brandQuery).filter(Objects::nonNull).toList();
+        return transportTypeQuery;
     }
 }

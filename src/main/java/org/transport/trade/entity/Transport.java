@@ -17,13 +17,13 @@ public class Transport {
 
     private TransportType transportType;
 
-    private BodyType bodyType;
+    private String bodyType;
 
     private Country manufacturerCountry; // save entity in the db
 
     private int manufacturerYear;
 
-    private Brand brand; // save entity in the db
+    private String brand; // save entity in the db
 
     private String model; // save entity in the db
 

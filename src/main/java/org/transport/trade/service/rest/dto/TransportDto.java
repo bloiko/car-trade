@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TransportDto {
 
-    @JsonProperty("Make")
+    @JsonProperty("Model")
     private String model;
 
-    @JsonProperty("Model")
+    @JsonProperty("Make")
     private String brand;
 
     @JsonProperty("Category")

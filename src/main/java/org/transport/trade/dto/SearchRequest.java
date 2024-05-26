@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.transport.trade.entity.BodyType;
-import org.transport.trade.entity.Brand;
 import org.transport.trade.entity.Country;
-import org.transport.trade.entity.TransportType;
 
 import java.util.Set;
 
@@ -17,15 +14,17 @@ import java.util.Set;
 @Builder
 public class SearchRequest {
 
-    private TransportType transportType;
+    private String searchText;
 
-    private Set<BodyType> bodyTypes;
+    private String transportType;
+
+    private Set<String> bodyTypes;
 
     private Country manufacturerCountry;
 
     private YearPeriod manufacturerPeriod;
 
-    private Brand brand;
+    private String brand;
 
     private String model;
 

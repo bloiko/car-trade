@@ -1,8 +1,6 @@
 package org.transport.trade.domain.entity;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,18 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Model {
 
-    @EmbeddedId
-    private ModelPK modelPk;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Model(String name, Brand brand, BodyType bodyType) {
-        this.modelPk = new ModelPK(name, brand, bodyType);
-    }
+    @Column(name = "name", unique = true, nullable = false)
+    private String name;
 
-    public void setBodyType(BodyType bodyType) {
-        this.modelPk.setBodyType(bodyType);
-    }
-
-    public void setBrand(Brand brand) {
-        this.modelPk.setBrand(brand);
+    public Model(String name) {
+        this.name = name;
     }
 }

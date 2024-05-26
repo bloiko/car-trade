@@ -12,22 +12,22 @@ import java.io.Serializable;
 @Embeddable
 @Data
 @NoArgsConstructor
-public class ModelPK implements Serializable {
+public class BrandPK implements Serializable {
 
     @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "brand_id", nullable = false)
-    private Brand brand;
+    @JoinColumn(name = "model_id", nullable = false)
+    private Model model;
 
     @ManyToOne
     @JoinColumn(name = "body_type_id", nullable = false)
     private BodyType bodyType;
 
-    public ModelPK(String name, Brand brand, BodyType bodyType) {
+    public BrandPK(String name, Model model, BodyType bodyType) {
         this.name = name;
-        this.brand = brand;
+        this.model = model;
         this.bodyType = bodyType;
     }
 }
