@@ -1,15 +1,11 @@
-package org.transport.trade.controller;
+package org.transport.trade.controller.convertor.impl;
 
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.transport.trade.dto.SearchRequest;
-import org.transport.trade.dto.Sort;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +13,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static org.transport.trade.controller.convertor.ElasticSearchQueryBuilder.buildMatchQuery;
+import static org.transport.trade.controller.convertor.ElasticSearchQueryBuilder.buildSortOptions;
 
 @Component
 public class SearchRequestConverter {
@@ -41,11 +39,6 @@ public class SearchRequestConverter {
         return builder.size(searchRequest.getPageSize()).build();
     }
 
-    private static SortOptions buildSortOptions(Sort sort) {
-        return new SortOptions.Builder().field(f -> f.field(sort.getFieldName())
-                                                     .order(SortOrder.valueOf(sort.getSortOrder().getValue()))).build();
-    }
-
     private static List<Query> buildMustQueries(SearchRequest searchRequest) {
         Query searchTextQuery = null;
         if (searchRequest.getSearchText() != null && !searchRequest.getSearchText().isEmpty()) {
@@ -60,13 +53,5 @@ public class SearchRequestConverter {
         Query modelQuery = buildMatchQuery("model", searchRequest.getModel());
 
         return Stream.of(searchTextQuery, transportTypeQuery, brandQuery, modelQuery).filter(Objects::nonNull).toList();
-    }
-
-    private static Query buildMatchQuery(String fieldId, String value) {
-        Query transportTypeQuery = null;
-        if (value != null) {
-            transportTypeQuery = MatchQuery.of(m -> m.field(fieldId).query(value))._toQuery();
-        }
-        return transportTypeQuery;
     }
 }

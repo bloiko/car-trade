@@ -2,8 +2,11 @@ package org.transport.trade.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.transport.trade.controller.convertor.FiltersConverter;
+import org.transport.trade.controller.convertor.impl.SearchRequestConverter;
 import org.transport.trade.dto.SearchRequest;
 import org.transport.trade.dto.TransportsResponse;
+import org.transport.trade.dto.filter.Filters;
 import org.transport.trade.entity.Transport;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
 
@@ -17,10 +20,14 @@ public class TransportController {
 
     private final SearchRequestConverter searchRequestConverter;
 
+    private final FiltersConverter filtersConverter;
+
     @Autowired
-    public TransportController(ElasticSearchTransportClient elasticSearchTransportClient, SearchRequestConverter searchRequestConverter) {
+    public TransportController(ElasticSearchTransportClient elasticSearchTransportClient,
+                               SearchRequestConverter searchRequestConverter, FiltersConverter filtersConverter) {
         this.elasticSearchTransportClient = elasticSearchTransportClient;
         this.searchRequestConverter = searchRequestConverter;
+        this.filtersConverter = filtersConverter;
     }
 
     @GetMapping("/transport/{transportId}")
@@ -50,6 +57,15 @@ public class TransportController {
 
         co.elastic.clients.elasticsearch.core.SearchRequest esSearchRequest =
                 searchRequestConverter.buildSearchRequest(searchRequest);
+
+        return elasticSearchTransportClient.search(esSearchRequest);
+    }
+
+    @PostMapping("/filter")
+    public TransportsResponse filterTransports(@RequestBody Filters filters) {
+        notNull(filters, "Filters cannot be null");
+
+        co.elastic.clients.elasticsearch.core.SearchRequest esSearchRequest = filtersConverter.convert(filters);
 
         return elasticSearchTransportClient.search(esSearchRequest);
     }

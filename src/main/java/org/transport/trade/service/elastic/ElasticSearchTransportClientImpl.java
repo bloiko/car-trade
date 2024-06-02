@@ -11,6 +11,7 @@ import org.transport.trade.entity.Transport;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,7 +40,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public TransportsResponse search(SearchRequest searchRequest) {
         try {
-            SearchResponse<Transport> searchResponse = elasticsearchClient.search(searchRequest, Transport.class);
+            SearchResponse<TransportDocument> searchResponse =
+                    elasticsearchClient.search(searchRequest, TransportDocument.class);
 
             return mapSearchResponse(searchResponse);
         } catch (IOException e) {
@@ -89,16 +91,33 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         }
     }
 
-    private static TransportsResponse mapSearchResponse(SearchResponse<Transport> searchResponse) {
+    private static TransportsResponse mapSearchResponse(SearchResponse<TransportDocument> searchResponse) {
         TransportsResponse transportsResponse = new TransportsResponse();
-        Optional<HitsMetadata<Transport>> hitsMetadata = Optional.ofNullable(searchResponse).map(ResponseBody::hits);
+        Optional<HitsMetadata<TransportDocument>> hitsMetadata =
+                Optional.ofNullable(searchResponse).map(ResponseBody::hits);
 
         hitsMetadata.ifPresent(hits -> transportsResponse.setTransports(hits.hits()
                                                                             .stream()
                                                                             .map(Hit::source)
+                                                                            .filter(Objects::nonNull)
+                                                                            .map(ElasticSearchTransportClientImpl::mapToTransport)
                                                                             .toList()));
         hitsMetadata.map(HitsMetadata::total).ifPresent(totalHits -> transportsResponse.setTotal(totalHits.value()));
 
         return transportsResponse;
+    }
+
+    private static Transport mapToTransport(TransportDocument transportDocument) {
+        Transport transport = new Transport();
+        transport.setId(transportDocument.getId());
+        transport.setTransportType(transportDocument.getTransportType());
+        transport.setBrand(transportDocument.getBrand());
+        transport.setModel(transportDocument.getModel());
+        transport.setBodyType(transportDocument.getBodyType());
+        transport.setPrice(transportDocument.getPrice());
+        transport.setRegion(transportDocument.getRegionSuggest().getInput().stream().findFirst().get());
+        transport.setManufacturerCountry(transportDocument.getManufacturerCountry());
+        transport.setManufacturerYear(transportDocument.getManufacturerYear());
+        return transport;
     }
 }
