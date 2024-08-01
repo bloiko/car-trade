@@ -4,16 +4,16 @@
       "id": {
         "type": "text"
       },
-      "transport_type": {
+      "transportType": {
         "type": "text"
       },
-      "body_type": {
+      "bodyType": {
         "type": "text"
       },
-      "manufacturer_country": {
+      "manufacturerCountry": {
         "type": "text"
       },
-      "manufacturer_year": {
+      "manufacturerYear": {
         "type": "integer"
       },
       "brand": {

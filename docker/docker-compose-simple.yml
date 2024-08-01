@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.1
+    container_name: transport-trade
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - ./init-scripts:/create-index
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: transports
+    ports:
+      - 3310:3306
