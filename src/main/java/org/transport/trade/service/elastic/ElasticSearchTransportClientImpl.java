@@ -23,7 +23,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
 
     private final ElasticsearchClient elasticsearchClient;
 
-    public ElasticSearchTransportClientImpl(@Value("${elasticsearch.indexName}") String indexName, ElasticsearchClient elasticsearchClient) {
+    public ElasticSearchTransportClientImpl(@Value("${elasticsearch.indexName}") String indexName,
+                                            ElasticsearchClient elasticsearchClient) {
         this.indexName = indexName;
         this.elasticsearchClient = elasticsearchClient;
     }

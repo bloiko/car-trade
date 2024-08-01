@@ -42,6 +42,4 @@ public class Brand {
     public String getModelName() {
         return this.brandPk.getModel().getName();
     }
-
-
 }

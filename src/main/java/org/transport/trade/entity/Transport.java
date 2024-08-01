@@ -1,5 +1,6 @@
 package org.transport.trade.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.math.BigInteger;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Transport {
 
     private String id;
@@ -32,7 +34,7 @@ public class Transport {
     private String region;
 }
 
-//"properties": {
+// "properties": {
 //        "id": {
 //        "type": "text"
 //        },

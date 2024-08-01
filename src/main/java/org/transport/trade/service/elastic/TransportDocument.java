@@ -38,7 +38,7 @@ public class TransportDocument {
     private RegionSuggest regionSuggest;
 }
 
-//"properties": {
+// "properties": {
 //        "id": {
 //        "type": "text"
 //        },

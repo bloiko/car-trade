@@ -17,7 +17,9 @@ import org.springframework.context.annotation.Configuration;
 public class ElasticSearchConfig {
 
     @Bean
-    public RestClient restClient(@Value("${elasticsearch.server.url}") String serverUrl, @Value("${elasticsearch.username}") String esUsername, @Value("${elasticsearch.password}") String esPassword) {
+    public RestClient restClient(@Value("${elasticsearch.server.url}") String serverUrl,
+                                 @Value("${elasticsearch.username}") String esUsername,
+                                 @Value("${elasticsearch.password}") String esPassword) {
         RestClientBuilder builder = RestClient.builder(HttpHost.create(serverUrl));
         builder.setDefaultHeaders(new Header[]{new BasicHeader(esUsername, esPassword)});
         return builder.build();

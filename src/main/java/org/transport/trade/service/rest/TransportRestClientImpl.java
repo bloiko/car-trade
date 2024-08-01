@@ -25,7 +25,9 @@ public class TransportRestClientImpl implements TransportRestClient {
 
     private final String carApiSecretKey;
 
-    public TransportRestClientImpl(@Autowired ObjectMapper objectMapper, @Value("${car.api.app.id}") String carApiApplicationId, @Value("${car.api.secret.key}") String carApiSecretKey) {
+    public TransportRestClientImpl(@Autowired ObjectMapper objectMapper,
+                                   @Value("${car.api.app.id}") String carApiApplicationId,
+                                   @Value("${car.api.secret.key}") String carApiSecretKey) {
         this.objectMapper = objectMapper;
         this.carApiApplicationId = carApiApplicationId;
         this.carApiSecretKey = carApiSecretKey;

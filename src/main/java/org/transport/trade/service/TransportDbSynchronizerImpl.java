@@ -15,7 +15,6 @@ import org.transport.trade.service.rest.dto.TransportDto;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-
 @Service
 @Transactional
 public class TransportDbSynchronizerImpl implements TransportDbSynchronizer {
@@ -28,7 +27,8 @@ public class TransportDbSynchronizerImpl implements TransportDbSynchronizer {
 
     private final TransportRestClient transportRestClient;
 
-    public TransportDbSynchronizerImpl(BodyTypeRepository bodyTypeRepository, ModelRepository modelRepository, BrandRepository brandRepository, TransportRestClient transportRestClient) {
+    public TransportDbSynchronizerImpl(BodyTypeRepository bodyTypeRepository, ModelRepository modelRepository,
+                                       BrandRepository brandRepository, TransportRestClient transportRestClient) {
         this.bodyTypeRepository = bodyTypeRepository;
         this.modelRepository = modelRepository;
         this.brandRepository = brandRepository;

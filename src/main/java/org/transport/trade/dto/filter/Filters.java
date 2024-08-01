@@ -8,7 +8,6 @@ import org.transport.trade.dto.Sort;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

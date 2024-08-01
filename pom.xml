@@ -51,7 +51,17 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>1.20.0</version>
+            <scope>test</scope>
+        </dependency>
         <!--Elastic search related-->
         <dependency>
             <groupId>co.elastic.clients</groupId>
@@ -98,20 +108,33 @@
                     </excludes>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
-
-    <reporting>
-        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat>
+                            <version>2.48.0</version>
+                            <style>PALANTIR</style>
+                            <formatJavadoc>true</formatJavadoc>>
+                        </palantirJavaFormat>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <configLocation>google_checks.xml</configLocation>
-                </configuration>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.3.1</version>
             </plugin>
         </plugins>
-    </reporting>
-
+    </build>
 </project>

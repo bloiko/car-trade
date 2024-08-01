@@ -13,5 +13,4 @@ class TransportTradeApplicationTests {
         // empty test
         assertTrue(true);
     }
-
 }
