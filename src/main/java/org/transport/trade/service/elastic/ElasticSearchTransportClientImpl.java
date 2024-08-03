@@ -12,8 +12,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.transport.trade.dto.TransportsResponse;
-import org.transport.trade.entity.Transport;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
