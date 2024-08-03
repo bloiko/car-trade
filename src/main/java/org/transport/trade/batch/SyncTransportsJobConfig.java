@@ -1,5 +1,7 @@
 package org.transport.trade.batch;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -21,9 +23,6 @@ import org.transport.trade.service.elastic.ElasticSearchTransportClient;
 import org.transport.trade.service.rest.TransportRestClient;
 import org.transport.trade.service.rest.dto.TransportDto;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
-
 @Configuration
 public class SyncTransportsJobConfig {
 
@@ -44,20 +43,22 @@ public class SyncTransportsJobConfig {
 
     @Bean
     public Job syncTransportsJob() {
-        return new JobBuilder("syncTransportsJob", jobRepository).incrementer(new RunIdIncrementer())
-                                                                 .start(syncTransportsStep())
-                                                                 .build();
+        return new JobBuilder("syncTransportsJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .start(syncTransportsStep())
+                .build();
     }
 
     @Bean
     public Step syncTransportsStep() {
-        return new StepBuilder("syncTransportsStep", jobRepository).<TransportDto, Transport>chunk(5, transactionManager)
-                                                                   .reader(restTransportsReader())
-                                                                   .processor(transportProcessor())
-                                                                   .writer(transportWriter())
-                                                                   //                .faultTolerant()
-                                                                   //                .skipPolicy(new AlwaysSkipItemSkipPolicy())
-                                                                   .build();
+        return new StepBuilder("syncTransportsStep", jobRepository)
+                .<TransportDto, Transport>chunk(5, transactionManager)
+                .reader(restTransportsReader())
+                .processor(transportProcessor())
+                .writer(transportWriter())
+                //                .faultTolerant()
+                //                .skipPolicy(new AlwaysSkipItemSkipPolicy())
+                .build();
     }
 
     @Bean

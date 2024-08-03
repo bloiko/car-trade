@@ -1,12 +1,11 @@
 package org.transport.trade.batch;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
+import java.util.List;
 import org.springframework.batch.item.ItemReader;
 import org.transport.trade.service.rest.TransportRestClient;
 import org.transport.trade.service.rest.dto.TransportDto;
-
-import java.util.List;
-
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class RestTransportReader implements ItemReader<TransportDto> {
 

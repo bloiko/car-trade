@@ -1,5 +1,10 @@
 package org.transport.trade.batch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
@@ -17,12 +22,6 @@ import org.transport.trade.entity.Transport;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
 import org.transport.trade.service.rest.TransportRestClient;
 import org.transport.trade.service.rest.dto.TransportDto;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @SpringBatchTest
@@ -54,8 +53,9 @@ class SyncTransportsJobIT {
     void testSyncTransportsJob() throws Exception {
         when(transportRestClient.getTransports(anyInt(), anyInt())).thenReturn(getTransportDtos("Audi", "BMW"));
 
-        JobParameters jobParameters =
-                new JobParametersBuilder().addLong("time", System.currentTimeMillis()).toJobParameters();
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("time", System.currentTimeMillis())
+                .toJobParameters();
 
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
 
