@@ -4,8 +4,8 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.util.List;
 import org.springframework.batch.item.ItemReader;
-import org.transport.trade.service.rest.TransportRestClient;
-import org.transport.trade.service.rest.dto.TransportDto;
+import org.transport.trade.transport.dto.TransportDto;
+import org.transport.trade.transport.rest.TransportRestClient;
 
 public class RestTransportReader implements ItemReader<TransportDto> {
 

@@ -16,12 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.transport.trade.entity.Country;
-import org.transport.trade.entity.Transport;
-import org.transport.trade.entity.TransportType;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
-import org.transport.trade.service.rest.TransportRestClient;
-import org.transport.trade.service.rest.dto.TransportDto;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportDto;
+import org.transport.trade.transport.entity.Country;
+import org.transport.trade.transport.entity.TransportType;
+import org.transport.trade.transport.rest.TransportRestClient;
 
 @Configuration
 public class SyncTransportsJobConfig {
