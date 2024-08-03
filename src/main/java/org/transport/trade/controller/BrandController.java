@@ -23,9 +23,8 @@ public class BrandController {
 
     @GetMapping("/body-type/{bodyTypeName}") // TODO move to the request body
     public Set<String> getBrandsByBodyType(@PathVariable("bodyTypeName") String bodyTypeName) {
-        return brandRepository.findBrandsByBrandPk_BodyType_Name(bodyTypeName)
-                              .stream()
-                              .map(Brand::getName)
-                              .collect(Collectors.toSet());
+        return brandRepository.findBrandsByBrandPk_BodyType_Name(bodyTypeName).stream()
+                .map(Brand::getName)
+                .collect(Collectors.toSet());
     }
 }

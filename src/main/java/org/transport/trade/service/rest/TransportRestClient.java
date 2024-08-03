@@ -1,8 +1,7 @@
 package org.transport.trade.service.rest;
 
-import org.transport.trade.service.rest.dto.TransportDto;
-
 import java.util.List;
+import org.transport.trade.service.rest.dto.TransportDto;
 
 public interface TransportRestClient {
 

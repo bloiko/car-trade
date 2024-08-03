@@ -4,17 +4,16 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.transport.trade.dto.TransportsResponse;
-import org.transport.trade.entity.Transport;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.transport.trade.dto.TransportsResponse;
+import org.transport.trade.entity.Transport;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
@@ -23,8 +22,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
 
     private final ElasticsearchClient elasticsearchClient;
 
-    public ElasticSearchTransportClientImpl(@Value("${elasticsearch.indexName}") String indexName,
-                                            ElasticsearchClient elasticsearchClient) {
+    public ElasticSearchTransportClientImpl(
+            @Value("${elasticsearch.indexName}") String indexName, ElasticsearchClient elasticsearchClient) {
         this.indexName = indexName;
         this.elasticsearchClient = elasticsearchClient;
     }
@@ -32,7 +31,9 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public Transport getById(String id) {
         try {
-            return elasticsearchClient.get(s -> s.index(indexName).id(id), Transport.class).source();
+            return elasticsearchClient
+                    .get(s -> s.index(indexName).id(id), Transport.class)
+                    .source();
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Get by id failed", e);
         }
@@ -74,17 +75,19 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     public List<String> getSuggestions(String textSearch, String fieldId) {
         try {
             SearchRequest request = SearchRequest.of(s -> s.index(indexName)
-                                                           .suggest(sg -> sg.suggesters("suggestions", FieldSuggester.of(suggesterBuilder -> suggesterBuilder.completion(completionBuilder -> completionBuilder.field(fieldId)
-                                                                                                                                                                                                               .skipDuplicates(true)
-                                                                                                                                                                                                               .size(5))
-                                                                                                                                                             .text(textSearch)))));
+                    .suggest(sg -> sg.suggesters("suggestions", FieldSuggester.of(suggesterBuilder -> suggesterBuilder
+                            .completion(completionBuilder -> completionBuilder
+                                    .field(fieldId)
+                                    .skipDuplicates(true)
+                                    .size(5))
+                            .text(textSearch)))));
             SearchResponse<Void> response = elasticsearchClient.search(request, Void.class);
             List<Suggestion<Void>> completionSuggestions = response.suggest().get("suggestions");
             if (completionSuggestions != null) {
                 return completionSuggestions.stream()
-                                            .flatMap(suggestion -> suggestion.completion().options().stream())
-                                            .map(CompletionSuggestOption::text)
-                                            .collect(Collectors.toList());
+                        .flatMap(suggestion -> suggestion.completion().options().stream())
+                        .map(CompletionSuggestOption::text)
+                        .collect(Collectors.toList());
             }
             return List.of();
         } catch (IOException e) {
@@ -97,12 +100,11 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         Optional<HitsMetadata<TransportDocument>> hitsMetadata =
                 Optional.ofNullable(searchResponse).map(ResponseBody::hits);
 
-        hitsMetadata.ifPresent(hits -> transportsResponse.setTransports(hits.hits()
-                                                                            .stream()
-                                                                            .map(Hit::source)
-                                                                            .filter(Objects::nonNull)
-                                                                            .map(ElasticSearchTransportClientImpl::mapToTransport)
-                                                                            .toList()));
+        hitsMetadata.ifPresent(hits -> transportsResponse.setTransports(hits.hits().stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .map(ElasticSearchTransportClientImpl::mapToTransport)
+                .toList()));
         hitsMetadata.map(HitsMetadata::total).ifPresent(totalHits -> transportsResponse.setTotal(totalHits.value()));
 
         return transportsResponse;
@@ -116,7 +118,9 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         transport.setModel(transportDocument.getModel());
         transport.setBodyType(transportDocument.getBodyType());
         transport.setPrice(transportDocument.getPrice());
-        transport.setRegion(transportDocument.getRegionSuggest().getInput().stream().findFirst().get());
+        transport.setRegion(transportDocument.getRegionSuggest().getInput().stream()
+                .findFirst()
+                .get());
         transport.setManufacturerCountry(transportDocument.getManufacturerCountry());
         transport.setManufacturerYear(transportDocument.getManufacturerYear());
         return transport;

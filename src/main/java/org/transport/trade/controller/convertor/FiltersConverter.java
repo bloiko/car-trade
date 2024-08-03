@@ -1,19 +1,18 @@
 package org.transport.trade.controller.convertor;
 
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
+import static org.transport.trade.controller.convertor.ElasticSearchQueryBuilder.buildSortOptions;
+
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.transport.trade.dto.filter.Filters;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static org.apache.commons.lang3.Validate.notNull;
-import static org.transport.trade.controller.convertor.ElasticSearchQueryBuilder.buildSortOptions;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.transport.trade.dto.filter.Filters;
 
 @Component
 public class FiltersConverter {
@@ -22,8 +21,8 @@ public class FiltersConverter {
 
     private final String indexName;
 
-    public FiltersConverter(Map<String, FilterConverter> filterConvertors,
-                            @Value("${elasticsearch.indexName}") String indexName) {
+    public FiltersConverter(
+            Map<String, FilterConverter> filterConvertors, @Value("${elasticsearch.indexName}") String indexName) {
         this.filterConvertors = filterConvertors;
         this.indexName = indexName;
     }
@@ -47,6 +46,7 @@ public class FiltersConverter {
 
         Optional.ofNullable(filters.getSort()).ifPresent(sort -> builder.sort(buildSortOptions(sort)));
 
-        return builder.size(Optional.ofNullable(filters.getPageSize()).orElse(10)).build();
+        return builder.size(Optional.ofNullable(filters.getPageSize()).orElse(10))
+                .build();
     }
 }

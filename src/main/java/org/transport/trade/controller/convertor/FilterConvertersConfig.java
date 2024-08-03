@@ -1,11 +1,10 @@
 package org.transport.trade.controller.convertor;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transport.trade.controller.convertor.impl.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 public class FilterConvertersConfig {

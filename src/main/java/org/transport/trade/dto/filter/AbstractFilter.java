@@ -8,7 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = TextSearchFilter.class, name = "TEXT_SEARCH"), @JsonSubTypes.Type(value = RangeFilter.class, name = "RANGE")})
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = TextSearchFilter.class, name = "TEXT_SEARCH"),
+    @JsonSubTypes.Type(value = RangeFilter.class, name = "RANGE")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
