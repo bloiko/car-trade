@@ -1,9 +1,10 @@
 package org.transport.trade.service.elastic;
 
 import co.elastic.clients.elasticsearch.core.SearchRequest;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
+
 import java.util.List;
-import org.transport.trade.dto.TransportsResponse;
-import org.transport.trade.entity.Transport;
 
 public interface ElasticSearchTransportClient {
 

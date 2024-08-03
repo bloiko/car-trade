@@ -18,10 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.transport.trade.entity.Transport;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
-import org.transport.trade.service.rest.TransportRestClient;
-import org.transport.trade.service.rest.dto.TransportDto;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportDto;
+import org.transport.trade.transport.rest.TransportRestClient;
 
 @SpringBootTest
 @SpringBatchTest
@@ -69,7 +69,6 @@ class SyncTransportsJobIT {
         TransportDto transport1 = new TransportDto("S7", brand1, "Sedan");
         TransportDto transport2 = new TransportDto("e5", brand2, "Sedan");
 
-        List<TransportDto> transports = Arrays.asList(transport1, transport2);
-        return transports;
+        return Arrays.asList(transport1, transport2);
     }
 }
