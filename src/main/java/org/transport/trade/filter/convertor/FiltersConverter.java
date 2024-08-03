@@ -1,19 +1,18 @@
 package org.transport.trade.filter.convertor;
 
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
+import static org.transport.trade.filter.convertor.ElasticSearchQueryBuilder.buildSortOptions;
+
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.transport.trade.filter.Filters;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static org.apache.commons.lang3.Validate.notNull;
-import static org.transport.trade.filter.convertor.ElasticSearchQueryBuilder.buildSortOptions;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.transport.trade.filter.Filters;
 
 @Component
 public class FiltersConverter {

@@ -4,12 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.transport.trade.bodytype.BodyType;
 import org.transport.trade.model.Model;
-
-import java.io.Serializable;
 
 @Embeddable
 @Data

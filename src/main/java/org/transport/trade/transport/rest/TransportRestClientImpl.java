@@ -1,19 +1,18 @@
 package org.transport.trade.transport.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.transport.trade.transport.dto.TransportDto;
-import org.transport.trade.transport.dto.TransportResultsDto;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.transport.trade.transport.dto.TransportDto;
+import org.transport.trade.transport.dto.TransportResultsDto;
 
 @Slf4j
 @Component
