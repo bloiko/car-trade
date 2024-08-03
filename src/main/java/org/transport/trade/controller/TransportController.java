@@ -1,5 +1,7 @@
 package org.transport.trade.controller;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.transport.trade.controller.convertor.FiltersConverter;
@@ -9,8 +11,6 @@ import org.transport.trade.dto.TransportsResponse;
 import org.transport.trade.dto.filter.Filters;
 import org.transport.trade.entity.Transport;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
-
-import static org.apache.commons.lang3.Validate.notNull;
 
 @RestController
 @RequestMapping("/transports")
@@ -23,8 +23,10 @@ public class TransportController {
     private final FiltersConverter filtersConverter;
 
     @Autowired
-    public TransportController(ElasticSearchTransportClient elasticSearchTransportClient,
-                               SearchRequestConverter searchRequestConverter, FiltersConverter filtersConverter) {
+    public TransportController(
+            ElasticSearchTransportClient elasticSearchTransportClient,
+            SearchRequestConverter searchRequestConverter,
+            FiltersConverter filtersConverter) {
         this.elasticSearchTransportClient = elasticSearchTransportClient;
         this.searchRequestConverter = searchRequestConverter;
         this.filtersConverter = filtersConverter;

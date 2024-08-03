@@ -6,7 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SortOrder {
-    ASC("Asc"), DESC("Desc");
+    ASC("Asc"),
+    DESC("Desc");
 
     private final String value;
 }

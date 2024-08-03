@@ -2,14 +2,13 @@ package org.transport.trade.service.elastic;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigInteger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.transport.trade.entity.Country;
 import org.transport.trade.entity.TransportType;
-
-import java.math.BigInteger;
 
 @Data
 @NoArgsConstructor

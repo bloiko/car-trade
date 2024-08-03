@@ -22,9 +22,8 @@ public class BodyTypeController {
 
     @GetMapping
     public List<BodyTypeResponse> getAllBodyTypes() {
-        return bodyTypeRepository.findAll()
-                                 .stream()
-                                 .map(bodyType -> new BodyTypeResponse(bodyType.getId(), bodyType.getName()))
-                                 .collect(Collectors.toList());
+        return bodyTypeRepository.findAll().stream()
+                .map(bodyType -> new BodyTypeResponse(bodyType.getId(), bodyType.getName()))
+                .collect(Collectors.toList());
     }
 }
