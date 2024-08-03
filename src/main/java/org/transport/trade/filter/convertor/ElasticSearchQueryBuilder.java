@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import org.transport.trade.filter.Sort;
 
-public class ElasticSearchQueryBuilder {
+class ElasticSearchQueryBuilder {
 
     static Query buildMatchQuery(String fieldId, String value) {
         Query transportTypeQuery = null;

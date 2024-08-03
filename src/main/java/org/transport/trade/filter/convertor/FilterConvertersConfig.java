@@ -2,7 +2,6 @@ package org.transport.trade.filter.convertor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.transport.trade.filter.convertor.impl.*;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface ModelRepository extends JpaRepository<Model, Long> {
+interface ModelRepository extends JpaRepository<Model, Long> {
 
     Model findByName(String name);
 

@@ -1,4 +1,4 @@
-package org.transport.trade.batch;
+package org.transport.trade.transport.batch;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 

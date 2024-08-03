@@ -6,7 +6,7 @@ import lombok.NonNull;
 import org.transport.trade.filter.AbstractFilter;
 import org.transport.trade.filter.RangeFilter;
 
-public abstract class AbstractRangeFilterConverter implements FilterConverter {
+abstract class AbstractRangeFilterConverter implements FilterConverter {
 
     @Override
     public Query convert(@NonNull AbstractFilter filter) {

@@ -7,7 +7,7 @@ import org.transport.trade.filter.TextSearchFilter;
 
 import static org.transport.trade.filter.convertor.ElasticSearchQueryBuilder.buildMatchQuery;
 
-public abstract class AbstractTextSearchFilterConverter implements FilterConverter {
+abstract class AbstractTextSearchFilterConverter implements FilterConverter {
 
     @Override
     public Query convert(@NonNull AbstractFilter filter) {

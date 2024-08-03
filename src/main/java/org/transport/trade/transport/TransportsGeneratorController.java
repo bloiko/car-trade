@@ -4,48 +4,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.transport.trade.bodytype.BodyTypeRepository;
 import org.transport.trade.brand.BrandRepository;
-import org.transport.trade.model.ModelRepository;
 import org.transport.trade.service.elastic.ElasticSearchTransportClient;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Random;
 
 @RestController
 @RequestMapping("/generator")
 public class TransportsGeneratorController {
 
-    private final ModelRepository modelRepository;
-
     private final BrandRepository brandRepository;
-
-    private final BodyTypeRepository bodyTypeRepository;
 
     private final ElasticSearchTransportClient elasticSearchTransportClient;
 
-    private final TransportDbSynchronizer transportDbSynchronizer;
-
     @Autowired
-    public TransportsGeneratorController(
-            ModelRepository modelRepository,
-            BrandRepository brandRepository,
-            BodyTypeRepository bodyTypeRepository,
-            ElasticSearchTransportClient elasticSearchTransportClient,
-            TransportDbSynchronizer transportDbSynchronizer) {
-        this.modelRepository = modelRepository;
+    public TransportsGeneratorController(BrandRepository brandRepository,
+                                         ElasticSearchTransportClient elasticSearchTransportClient) {
         this.brandRepository = brandRepository;
-        this.bodyTypeRepository = bodyTypeRepository;
         this.elasticSearchTransportClient = elasticSearchTransportClient;
-        this.transportDbSynchronizer = transportDbSynchronizer;
     }
 
     @GetMapping("/transports/db-elastic-sync")
-    public void generateTransports() {
-        Random random = new Random(100);
+    void generateTransports() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
         Arrays.stream(Country.values()).forEach(country -> {
             brandRepository.findAll().forEach(brand -> {
                 Transport transport = Transport.builder()
@@ -61,10 +48,5 @@ public class TransportsGeneratorController {
                 elasticSearchTransportClient.index(transport);
             });
         });
-    }
-
-    @GetMapping("/transports/sync-db")
-    public void syncTransportsToDb() {
-        transportDbSynchronizer.sync();
     }
 }

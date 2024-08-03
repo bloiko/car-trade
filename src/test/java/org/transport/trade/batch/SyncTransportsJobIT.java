@@ -69,7 +69,6 @@ class SyncTransportsJobIT {
         TransportDto transport1 = new TransportDto("S7", brand1, "Sedan");
         TransportDto transport2 = new TransportDto("e5", brand2, "Sedan");
 
-        List<TransportDto> transports = Arrays.asList(transport1, transport2);
-        return transports;
+        return Arrays.asList(transport1, transport2);
     }
 }

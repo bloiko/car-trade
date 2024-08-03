@@ -27,9 +27,7 @@ public class ModelController {
     }
 
     @GetMapping
-    List<ModelResponse> getModels(
-            @RequestParam String bodyTypeName, // TODO move to the request body
-            @RequestParam String brandName) {
+    List<ModelResponse> getModels(@RequestParam String bodyTypeName, @RequestParam String brandName) {
         Set<Long> modelIds =
                 brandRepository.findBrandByBrandPk_BodyType_NameAndBrandPk_Name(bodyTypeName, brandName).stream()
                         .map(Brand::getModelId)

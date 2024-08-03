@@ -59,7 +59,7 @@ public class TransportRestClientImpl implements TransportRestClient {
                 urlConnection.disconnect();
             }
         } catch (Exception e) {
-            log.error("Error: " + e);
+            log.error("Error: {}", String.valueOf(e));
         }
         return Collections.emptyList();
     }
