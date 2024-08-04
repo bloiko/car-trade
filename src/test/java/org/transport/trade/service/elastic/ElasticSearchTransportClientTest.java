@@ -1,5 +1,8 @@
 package org.transport.trade.service.elastic;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigInteger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,16 +15,20 @@ import org.transport.trade.transport.Transport;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
 
-import java.math.BigInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @ActiveProfiles("test")
 class ElasticSearchTransportClientTest {
 
-    private static final Transport TRANSPORT =
-            new Transport("ID", TransportType.PASSENGER_CARS, "Sedan", Country.CHINA, 2000, "BMW", "E3", new BigInteger("10000"), "Kyiv");
+    private static final Transport TRANSPORT = new Transport(
+            "ID",
+            TransportType.PASSENGER_CARS,
+            "Sedan",
+            Country.CHINA,
+            2000,
+            "BMW",
+            "E3",
+            new BigInteger("10000"),
+            "Kyiv");
 
     @Autowired
     private ElasticSearchTransportClientImpl elasticSearchTransportClient;
