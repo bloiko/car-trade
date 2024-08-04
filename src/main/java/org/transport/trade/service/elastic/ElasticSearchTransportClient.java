@@ -9,7 +9,7 @@ public interface ElasticSearchTransportClient {
 
     Transport getById(String id);
 
-    void index(Transport transport);
+    String index(Transport transport);
 
     void deleteById(String id);
 

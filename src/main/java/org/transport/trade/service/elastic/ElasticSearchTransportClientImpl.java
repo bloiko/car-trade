@@ -52,11 +52,12 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     }
 
     @Override
-    public void index(Transport transport) {
+    public String index(Transport transport) {
         try {
             String generatedId = UUID.randomUUID().toString();
             transport.setId(generatedId);
             elasticsearchClient.index(i -> i.index(indexName).id(generatedId).document(transport));
+            return generatedId;
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Index failed", e);
         }
