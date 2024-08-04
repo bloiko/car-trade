@@ -4,16 +4,17 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.transport.trade.transport.Transport;
-import org.transport.trade.transport.dto.TransportsResponse;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
@@ -52,11 +53,12 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     }
 
     @Override
-    public void index(Transport transport) {
+    public String index(Transport transport) {
         try {
             String generatedId = UUID.randomUUID().toString();
             transport.setId(generatedId);
             elasticsearchClient.index(i -> i.index(indexName).id(generatedId).document(transport));
+            return generatedId;
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Index failed", e);
         }
