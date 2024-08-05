@@ -1,4 +1,4 @@
-package org.transport.trade.batch;
+package org.transport.trade.transport.batch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.transport.trade.service.elastic.ElasticSearchTransportClient;
+import org.transport.trade.elastic.ElasticSearchTransportClient;
 import org.transport.trade.transport.Transport;
 import org.transport.trade.transport.dto.TransportDto;
 import org.transport.trade.transport.rest.TransportRestClient;

@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.transport.trade.service.elastic.ElasticSearchTransportClient;
+import org.transport.trade.elastic.ElasticSearchTransportClient;
 import org.transport.trade.transport.Transport;
 import org.transport.trade.transport.dto.TransportDto;
 import org.transport.trade.transport.entity.Country;

@@ -1,4 +1,4 @@
-package org.transport.trade.service.elastic;
+package org.transport.trade.elastic;
 
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
