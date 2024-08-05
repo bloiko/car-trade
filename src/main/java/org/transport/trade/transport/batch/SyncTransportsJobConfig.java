@@ -1,7 +1,5 @@
 package org.transport.trade.transport.batch;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -16,12 +14,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.transport.trade.service.elastic.ElasticSearchTransportClient;
+import org.transport.trade.elastic.ElasticSearchTransportClient;
 import org.transport.trade.transport.Transport;
 import org.transport.trade.transport.dto.TransportDto;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
 import org.transport.trade.transport.rest.TransportRestClient;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 @Configuration
 public class SyncTransportsJobConfig {

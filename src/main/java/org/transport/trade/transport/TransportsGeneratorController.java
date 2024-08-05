@@ -1,16 +1,17 @@
 package org.transport.trade.transport;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.transport.trade.brand.BrandRepository;
-import org.transport.trade.service.elastic.ElasticSearchTransportClient;
+import org.transport.trade.elastic.ElasticSearchTransportClient;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/generator")
