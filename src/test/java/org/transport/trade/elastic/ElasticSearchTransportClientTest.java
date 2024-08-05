@@ -1,5 +1,8 @@
 package org.transport.trade.elastic;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -7,10 +10,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.transport.trade.transport.Transport;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
-
-import java.math.BigInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")

@@ -1,6 +1,12 @@
 package org.transport.trade.transport;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,20 +18,21 @@ import org.transport.trade.elastic.ElasticSearchTransportClientImpl;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
 
-import java.math.BigInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class TransportControllerTest extends AbstractElasticSearchTest {
 
-    private static final Transport TRANSPORT =
-            new Transport("ID", TransportType.PASSENGER_CARS, "Sedan", Country.UKRAINE, 2000, "BMW", "E3", new BigInteger("10000"), "Kyiv");
+    private static final Transport TRANSPORT = new Transport(
+            "ID",
+            TransportType.PASSENGER_CARS,
+            "Sedan",
+            Country.UKRAINE,
+            2000,
+            "BMW",
+            "E3",
+            new BigInteger("10000"),
+            "Kyiv");
 
     @Autowired
     private MockMvc mockMvc;
@@ -40,17 +47,16 @@ class TransportControllerTest extends AbstractElasticSearchTest {
         String savedTransportId = elasticSearchTransportClient.index(TRANSPORT);
 
         String responseBody = mockMvc.perform(get("/transports/transport/" + savedTransportId))
-                                     .andExpect(status().isOk())
-                                     .andReturn()
-                                     .getResponse()
-                                     .getContentAsString();
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(TRANSPORT), responseBody);
     }
 
     @Test
-    void testAddTransport() {
-    }
+    void testAddTransport() {}
 
     @Test
     void testDeleteTransport() throws Exception {
@@ -59,15 +65,14 @@ class TransportControllerTest extends AbstractElasticSearchTest {
         assertNotNull(elasticSearchTransportClient.getById(savedTransportId));
 
         mockMvc.perform(delete("/transports/transport/" + savedTransportId))
-               .andExpect(status().isOk())
-               .andReturn()
-               .getResponse()
-               .getContentAsString();
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         assertNull(elasticSearchTransportClient.getById(savedTransportId));
     }
 
     @Test
-    void testFilterTransports() {
-    }
+    void testFilterTransports() {}
 }
