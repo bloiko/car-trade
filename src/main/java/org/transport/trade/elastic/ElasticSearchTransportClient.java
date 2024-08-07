@@ -11,9 +11,13 @@ public interface ElasticSearchTransportClient {
 
     String index(Transport transport);
 
+    void bulkIndex(List<Transport> transports);
+
     void deleteById(String id);
 
     TransportsResponse search(SearchRequest searchRequest);
 
     List<String> getSuggestions(String textSearch, String fieldId);
+
+    boolean healthCheck();
 }
