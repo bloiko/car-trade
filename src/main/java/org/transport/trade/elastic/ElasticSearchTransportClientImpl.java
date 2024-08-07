@@ -1,19 +1,26 @@
 package org.transport.trade.elastic;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
+import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
 import co.elastic.clients.elasticsearch.core.search.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.transport.trade.transport.Transport;
-import org.transport.trade.transport.dto.TransportsResponse;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
@@ -31,9 +38,10 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public Transport getById(String id) {
         try {
-            return elasticsearchClient
-                    .get(s -> s.index(indexName).id(id), Transport.class)
+            TransportDocument transportDocument =
+                    elasticsearchClient.get(s -> s.index(indexName).id(id), TransportDocument.class)
                     .source();
+            return mapToTransport(transportDocument);
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Get by id failed", e);
         }
@@ -56,10 +64,37 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         try {
             String generatedId = UUID.randomUUID().toString();
             transport.setId(generatedId);
-            elasticsearchClient.index(i -> i.index(indexName).id(generatedId).document(transport));
+            elasticsearchClient.index(i -> i.index(indexName)
+                                            .id(generatedId)
+                                            .document(mapToTransportDocument(transport)));
             return generatedId;
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Index failed", e);
+        }
+    }
+
+    @Override
+    public void bulkIndex(List<Transport> transports) {
+        try {
+            BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
+            for (Transport transport : transports) {
+                String generatedId = UUID.randomUUID().toString();
+                transport.setId(generatedId);
+                bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(i -> i.index(indexName)
+                                                                                                    .id(generatedId)
+                                                                                                    .document(mapToTransportDocument(transport))))));
+            }
+            BulkResponse bulkResponse = elasticsearchClient.bulk(bulkRequestBuilder.build());
+            if (bulkResponse.errors()) {
+                System.err.println("Bulk indexing had errors");
+                bulkResponse.items().forEach(item -> {
+                    if (item.error() != null) {
+                        System.err.println(item.error().reason());
+                    }
+                });
+            }
+        } catch (IOException e) {
+            throw new ElasticSearchOperationFailedException("Bulk index failed", e);
         }
     }
 
@@ -96,6 +131,15 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         }
     }
 
+    public boolean healthCheck() {
+        try {
+            HealthResponse healthResponse = elasticsearchClient.cluster().health();
+            return healthResponse.status() != HealthStatus.Red;
+        } catch (IOException e) {
+            throw new ElasticSearchOperationFailedException("Health check failed", e);
+        }
+    }
+
     private static TransportsResponse mapSearchResponse(SearchResponse<TransportDocument> searchResponse) {
         TransportsResponse transportsResponse = new TransportsResponse();
         Optional<HitsMetadata<TransportDocument>> hitsMetadata =
@@ -112,6 +156,9 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     }
 
     private static Transport mapToTransport(TransportDocument transportDocument) {
+        if (transportDocument == null) {
+            return null;
+        }
         Transport transport = new Transport();
         transport.setId(transportDocument.getId());
         transport.setTransportType(transportDocument.getTransportType());
@@ -125,5 +172,22 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         transport.setManufacturerCountry(transportDocument.getManufacturerCountry());
         transport.setManufacturerYear(transportDocument.getManufacturerYear());
         return transport;
+    }
+
+    private static TransportDocument mapToTransportDocument(Transport transport) {
+        if (transport == null) {
+            return null;
+        }
+        TransportDocument transportDocument = new TransportDocument();
+        transportDocument.setId(transport.getId());
+        transportDocument.setTransportType(transport.getTransportType());
+        transportDocument.setBrand(transport.getBrand());
+        transportDocument.setModel(transport.getModel());
+        transportDocument.setBodyType(transport.getBodyType());
+        transportDocument.setPrice(transport.getPrice());
+        transportDocument.setRegionSuggest(new RegionSuggest(transport.getRegion()));
+        transportDocument.setManufacturerCountry(transport.getManufacturerCountry());
+        transportDocument.setManufacturerYear(transport.getManufacturerYear());
+        return transportDocument;
     }
 }
