@@ -1,0 +1,24 @@
+[
+  {
+    "id": "CAR_ID_1",
+    "transportType": "BUSES",
+    "bodyType": "Sedan",
+    "manufacturerCountry": "UKRAINE",
+    "manufacturerYear": 2020,
+    "brand": "Audi",
+    "model": "S7",
+    "price": 999,
+    "region": "Some 123"
+  },
+  {
+    "id": "CAR_ID_2",
+    "transportType": "BUSES",
+    "bodyType": "Sedan",
+    "manufacturerCountry": "UKRAINE",
+    "manufacturerYear": 2020,
+    "brand": "Audi",
+    "model": "S7",
+    "price": 999,
+    "region": "Some region"
+  }
+]
