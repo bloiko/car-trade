@@ -3,12 +3,11 @@ package org.transport.trade.elastic;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import org.springframework.context.annotation.Configuration;
-import org.transport.trade.transport.Transport;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.springframework.context.annotation.Configuration;
+import org.transport.trade.transport.Transport;
 
 @Configuration
 public class EsDataInitializer {
@@ -37,8 +36,7 @@ public class EsDataInitializer {
         }
         System.out.println("Initialize transports");
         ObjectMapper mapper = new ObjectMapper();
-        TypeReference<List<Transport>> typeReference = new TypeReference<List<Transport>>() {
-        };
+        TypeReference<List<Transport>> typeReference = new TypeReference<List<Transport>>() {};
         InputStream inputStream = getClass().getResourceAsStream("/initialEsData.json");
 
         if (inputStream == null) {

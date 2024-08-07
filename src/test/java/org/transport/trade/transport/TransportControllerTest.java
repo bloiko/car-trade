@@ -1,6 +1,11 @@
 package org.transport.trade.transport;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,12 +17,6 @@ import org.transport.trade.filter.TextSearchFilter;
 import org.transport.trade.transport.dto.TransportsResponse;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
-
-import java.math.BigInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 class TransportControllerTest extends AbstractElasticSearchTest {
@@ -79,12 +78,13 @@ class TransportControllerTest extends AbstractElasticSearchTest {
 
         String filterRequest = objectMapper.writeValueAsString(filters);
 
-        String responseBody =
-                mockMvc.perform(post("/transports/filter").contentType("application/json").content(filterRequest))
-                       .andExpect(status().isOk())
-                       .andReturn()
-                       .getResponse()
-                       .getContentAsString();
+        String responseBody = mockMvc.perform(post("/transports/filter")
+                        .contentType("application/json")
+                        .content(filterRequest))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         TransportsResponse response = objectMapper.readValue(responseBody, TransportsResponse.class);
 

@@ -10,17 +10,16 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
 import co.elastic.clients.elasticsearch.core.search.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.transport.trade.transport.Transport;
-import org.transport.trade.transport.dto.TransportsResponse;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
@@ -38,8 +37,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public Transport getById(String id) {
         try {
-            TransportDocument transportDocument =
-                    elasticsearchClient.get(s -> s.index(indexName).id(id), TransportDocument.class)
+            TransportDocument transportDocument = elasticsearchClient
+                    .get(s -> s.index(indexName).id(id), TransportDocument.class)
                     .source();
             return mapToTransport(transportDocument);
         } catch (IOException e) {
@@ -64,9 +63,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         try {
             String generatedId = UUID.randomUUID().toString();
             transport.setId(generatedId);
-            elasticsearchClient.index(i -> i.index(indexName)
-                                            .id(generatedId)
-                                            .document(mapToTransportDocument(transport)));
+            elasticsearchClient.index(
+                    i -> i.index(indexName).id(generatedId).document(mapToTransportDocument(transport)));
             return generatedId;
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Index failed", e);
@@ -80,9 +78,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
             for (Transport transport : transports) {
                 String generatedId = UUID.randomUUID().toString();
                 transport.setId(generatedId);
-                bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(i -> i.index(indexName)
-                                                                                                    .id(generatedId)
-                                                                                                    .document(mapToTransportDocument(transport))))));
+                bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(
+                        i -> i.index(indexName).id(generatedId).document(mapToTransportDocument(transport))))));
             }
             BulkResponse bulkResponse = elasticsearchClient.bulk(bulkRequestBuilder.build());
             if (bulkResponse.errors()) {
