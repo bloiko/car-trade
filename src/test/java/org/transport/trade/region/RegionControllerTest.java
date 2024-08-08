@@ -1,18 +1,17 @@
 package org.transport.trade.region;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.transport.trade.elastic.AbstractElasticSearchTest;
 import org.transport.trade.elastic.ElasticSearchTransportClientImpl;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 class RegionControllerTest extends AbstractElasticSearchTest {
@@ -30,10 +29,10 @@ class RegionControllerTest extends AbstractElasticSearchTest {
         elasticSearchTransportClient.getById("SOME_ID");
 
         String responseBody = mockMvc.perform(get("/regions").param("textSearch", "Some"))
-                                     .andExpect(status().isOk())
-                                     .andReturn()
-                                     .getResponse()
-                                     .getContentAsString();
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         List response = objectMapper.readValue(responseBody, List.class);
 

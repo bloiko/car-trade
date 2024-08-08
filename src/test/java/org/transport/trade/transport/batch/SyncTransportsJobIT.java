@@ -1,5 +1,10 @@
 package org.transport.trade.transport.batch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
@@ -16,12 +21,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.transport.trade.elastic.ElasticSearchTransportClient;
 import org.transport.trade.transport.dto.TransportDto;
 import org.transport.trade.transport.rest.TransportRestClient;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @SpringBatchTest

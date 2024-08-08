@@ -3,14 +3,13 @@ package org.transport.trade.elastic;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.transport.trade.transport.Transport;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 @Component
 @DependsOn("elasticTestContainerInitializer")
@@ -62,8 +61,7 @@ public class EsDataInitializer {
                 return;
             }
 
-            List<Transport> transports = objectMapper.readValue(inputStream, new TypeReference<List<Transport>>() {
-            });
+            List<Transport> transports = objectMapper.readValue(inputStream, new TypeReference<List<Transport>>() {});
             elasticSearchTransportClient.bulkIndex(transports);
             System.out.println("Transports saved successfully.");
         } catch (IOException e) {

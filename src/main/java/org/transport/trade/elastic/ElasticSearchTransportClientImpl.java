@@ -12,11 +12,6 @@ import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
 import co.elastic.clients.elasticsearch.core.search.*;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.transport.trade.transport.Transport;
-import org.transport.trade.transport.dto.TransportsResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -24,6 +19,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
@@ -145,12 +144,16 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public void initializeMapping(InputStream inputStream) {
         try {
-            boolean indexExists = elasticsearchClient.indices().exists(e -> e.index(indexName)).value();
+            boolean indexExists = elasticsearchClient
+                    .indices()
+                    .exists(e -> e.index(indexName))
+                    .value();
             if (!indexExists) {
                 CreateIndexRequest createIndexRequest =
                         CreateIndexRequest.of(b -> b.index(indexName).mappings(m -> m.withJson(inputStream)));
 
-                CreateIndexResponse createIndexResponse = elasticsearchClient.indices().create(createIndexRequest);
+                CreateIndexResponse createIndexResponse =
+                        elasticsearchClient.indices().create(createIndexRequest);
 
                 if (!createIndexResponse.acknowledged()) {
                     throw new RuntimeException("Failed to create index: " + indexName);
