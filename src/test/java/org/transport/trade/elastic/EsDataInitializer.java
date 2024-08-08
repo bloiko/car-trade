@@ -3,14 +3,22 @@ package org.transport.trade.elastic;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import org.springframework.context.annotation.Configuration;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.transport.trade.transport.Transport;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.springframework.context.annotation.Configuration;
-import org.transport.trade.transport.Transport;
 
 @Configuration
 public class EsDataInitializer {
+
+    @Container
+    private final ElasticsearchContainer container = new ElasticTestContainer();
+
+    private static boolean containerStarted = false;
 
     private final ElasticSearchTransportClient elasticSearchTransportClient;
 
@@ -20,6 +28,12 @@ public class EsDataInitializer {
 
     @PostConstruct
     public void init() {
+        if (containerStarted) {
+            return;
+        }
+        container.start();
+        containerStarted = true;
+
         System.out.println("Check ES health");
         int counter = 0;
         while (elasticSearchTransportClient == null || !elasticSearchTransportClient.healthCheck()) {
@@ -34,6 +48,10 @@ public class EsDataInitializer {
                 throw new RuntimeException(e);
             }
         }
+
+        InputStream inputStreamEsMapping = getClass().getResourceAsStream("/esMapping.json");
+        elasticSearchTransportClient.initializeMapping(inputStreamEsMapping);
+
         System.out.println("Initialize transports");
         ObjectMapper mapper = new ObjectMapper();
         TypeReference<List<Transport>> typeReference = new TypeReference<List<Transport>>() {};
