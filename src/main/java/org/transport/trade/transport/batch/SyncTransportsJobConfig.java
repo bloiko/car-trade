@@ -84,7 +84,9 @@ public class SyncTransportsJobConfig {
 
     @Bean
     public ItemWriter<Transport> transportWriter() {
-        return items -> items.forEach(elasticSearchTransportClient::index);
+        return items -> {
+            elasticSearchTransportClient.bulkIndex(items.getItems());
+        };
     }
 
     @SafeVarargs

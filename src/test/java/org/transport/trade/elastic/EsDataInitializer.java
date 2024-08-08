@@ -6,48 +6,64 @@ import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 import org.transport.trade.transport.Transport;
 
-@Configuration
+@Component
+@DependsOn("elasticTestContainerInitializer")
 public class EsDataInitializer {
+
+    private static boolean containerInitialized = false;
 
     private final ElasticSearchTransportClient elasticSearchTransportClient;
 
-    public EsDataInitializer(ElasticSearchTransportClient elasticSearchTransportClient) {
+    private final ObjectMapper objectMapper;
+
+    @Value("${es.mapping.file:/esMapping.json}")
+    private String esMappingFile;
+
+    @Value("${es.data.file:/initialEsData.json}")
+    private String esDataFile;
+
+    public EsDataInitializer(ElasticSearchTransportClient elasticSearchTransportClient, ObjectMapper objectMapper) {
         this.elasticSearchTransportClient = elasticSearchTransportClient;
+        this.objectMapper = objectMapper;
     }
 
     @PostConstruct
     public void init() {
-        System.out.println("Check ES health");
-        int counter = 0;
-        while (elasticSearchTransportClient == null || !elasticSearchTransportClient.healthCheck()) {
-            try {
-                Thread.sleep(100);
-                if (counter++ > 5) {
-                    System.out.println("Cannot initialize ES!!!!");
-                    return;
-                }
-                counter++;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        if (!containerInitialized) {
+            initializeMapping();
+            initializeTransports();
+            containerInitialized = true;
+        }
+    }
+
+    private void initializeMapping() {
+        try (InputStream inputStreamEsMapping = getClass().getResourceAsStream(esMappingFile)) {
+            if (inputStreamEsMapping == null) {
+                System.out.println("Mapping file not found!");
+                return;
             }
+            elasticSearchTransportClient.initializeMapping(inputStreamEsMapping);
+            System.out.println("Mapping initialized successfully.");
+        } catch (IOException e) {
+            System.out.println("Failed to initialize mapping: " + e.getMessage());
         }
-        System.out.println("Initialize transports");
-        ObjectMapper mapper = new ObjectMapper();
-        TypeReference<List<Transport>> typeReference = new TypeReference<List<Transport>>() {};
-        InputStream inputStream = getClass().getResourceAsStream("/initialEsData.json");
+    }
 
-        if (inputStream == null) {
-            System.out.println("File not found!");
-            return;
-        }
+    private void initializeTransports() {
+        try (InputStream inputStream = getClass().getResourceAsStream(esDataFile)) {
+            if (inputStream == null) {
+                System.out.println("Data file not found!");
+                return;
+            }
 
-        try {
-            List<Transport> transports = mapper.readValue(inputStream, typeReference);
+            List<Transport> transports = objectMapper.readValue(inputStream, new TypeReference<List<Transport>>() {});
             elasticSearchTransportClient.bulkIndex(transports);
-            System.out.println("Transports saved successfully");
+            System.out.println("Transports saved successfully.");
         } catch (IOException e) {
             System.out.println("Unable to save transports: " + e.getMessage());
         }

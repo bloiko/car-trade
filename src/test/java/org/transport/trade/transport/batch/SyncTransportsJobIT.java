@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.transport.trade.elastic.ElasticSearchTransportClient;
-import org.transport.trade.transport.Transport;
 import org.transport.trade.transport.dto.TransportDto;
 import org.transport.trade.transport.rest.TransportRestClient;
 
@@ -62,7 +61,7 @@ class SyncTransportsJobIT {
         assertEquals("COMPLETED", jobExecution.getStatus().toString());
 
         verify(transportRestClient, times(2)).getTransports(anyInt(), anyInt());
-        verify(elasticSearchTransportClient, times(2)).index(any(Transport.class));
+        verify(elasticSearchTransportClient, times(1)).bulkIndex(any(List.class));
     }
 
     private static List<TransportDto> getTransportDtos(String brand1, String brand2) {

@@ -10,7 +10,10 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
 import co.elastic.clients.elasticsearch.core.search.*;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -72,7 +75,7 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     }
 
     @Override
-    public void bulkIndex(List<Transport> transports) {
+    public void bulkIndex(List<? extends Transport> transports) {
         try {
             BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
             for (Transport transport : transports) {
@@ -128,12 +131,36 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         }
     }
 
+    @Override
     public boolean healthCheck() {
         try {
             HealthResponse healthResponse = elasticsearchClient.cluster().health();
             return healthResponse.status() != HealthStatus.Red;
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Health check failed", e);
+        }
+    }
+
+    @Override
+    public void initializeMapping(InputStream inputStream) {
+        try {
+            boolean indexExists = elasticsearchClient
+                    .indices()
+                    .exists(e -> e.index(indexName))
+                    .value();
+            if (!indexExists) {
+                CreateIndexRequest createIndexRequest =
+                        CreateIndexRequest.of(b -> b.index(indexName).mappings(m -> m.withJson(inputStream)));
+
+                CreateIndexResponse createIndexResponse =
+                        elasticsearchClient.indices().create(createIndexRequest);
+
+                if (!createIndexResponse.acknowledged()) {
+                    throw new RuntimeException("Failed to create index: " + indexName);
+                }
+            }
+        } catch (IOException e) {
+            throw new ElasticSearchOperationFailedException("Failed to initialize mappings", e);
         }
     }
 
@@ -163,9 +190,7 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         transport.setModel(transportDocument.getModel());
         transport.setBodyType(transportDocument.getBodyType());
         transport.setPrice(transportDocument.getPrice());
-        transport.setRegion(transportDocument.getRegionSuggest().getInput().stream()
-                .findFirst()
-                .get());
+        transport.setRegion(transportDocument.getRegion());
         transport.setManufacturerCountry(transportDocument.getManufacturerCountry());
         transport.setManufacturerYear(transportDocument.getManufacturerYear());
         return transport;
@@ -182,6 +207,7 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         transportDocument.setModel(transport.getModel());
         transportDocument.setBodyType(transport.getBodyType());
         transportDocument.setPrice(transport.getPrice());
+        transportDocument.setRegion(transport.getRegion());
         transportDocument.setRegionSuggest(new RegionSuggest(transport.getRegion()));
         transportDocument.setManufacturerCountry(transport.getManufacturerCountry());
         transportDocument.setManufacturerYear(transport.getManufacturerYear());

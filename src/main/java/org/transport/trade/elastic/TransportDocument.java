@@ -33,6 +33,8 @@ public class TransportDocument {
 
     private BigInteger price;
 
+    private String region;
+
     @JsonProperty("region_suggest")
     private RegionSuggest regionSuggest;
 }
