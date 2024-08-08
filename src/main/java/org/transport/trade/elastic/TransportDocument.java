@@ -2,13 +2,14 @@ package org.transport.trade.elastic;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.math.BigInteger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
+
+import java.math.BigInteger;
 
 @Data
 @NoArgsConstructor
@@ -32,6 +33,8 @@ public class TransportDocument {
     private String model; // save entity in the db
 
     private BigInteger price;
+
+    private String region;
 
     @JsonProperty("region_suggest")
     private RegionSuggest regionSuggest;
