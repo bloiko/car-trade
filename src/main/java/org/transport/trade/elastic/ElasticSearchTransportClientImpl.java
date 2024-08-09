@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.transport.trade.transport.Transport;
@@ -40,10 +41,9 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public Transport getById(String id) {
         try {
-            TransportDocument transportDocument = elasticsearchClient
+            return mapToTransport(elasticsearchClient
                     .get(s -> s.index(indexName).id(id), TransportDocument.class)
-                    .source();
-            return mapToTransport(transportDocument);
+                    .source());
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Get by id failed", e);
         }
@@ -52,10 +52,7 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public TransportsResponse search(SearchRequest searchRequest) {
         try {
-            SearchResponse<TransportDocument> searchResponse =
-                    elasticsearchClient.search(searchRequest, TransportDocument.class);
-
-            return mapSearchResponse(searchResponse);
+            return mapSearchResponse(elasticsearchClient.search(searchRequest, TransportDocument.class));
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Search failed", e);
         }
@@ -64,37 +61,26 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public String index(Transport transport) {
         try {
-            String generatedId = UUID.randomUUID().toString();
-            transport.setId(generatedId);
-            elasticsearchClient.index(
-                    i -> i.index(indexName).id(generatedId).document(mapToTransportDocument(transport)));
-            return generatedId;
+            String id = getOrGenerateId(transport);
+            transport.setId(id);
+            elasticsearchClient.index(i -> i.index(indexName).id(id).document(mapToTransportDocument(transport)));
+            return id;
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Index failed", e);
         }
     }
 
+    private static String getOrGenerateId(Transport transport) {
+        return StringUtils.defaultIfBlank(transport.getId(), UUID.randomUUID().toString());
+    }
+
     @Override
     public void bulkIndex(List<? extends Transport> transports) {
         try {
-            BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
-            for (Transport transport : transports) {
-                String generatedId = UUID.randomUUID().toString();
-                transport.setId(generatedId);
-                bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(
-                        i -> i.index(indexName).id(generatedId).document(mapToTransportDocument(transport))))));
-            }
-            BulkResponse bulkResponse = elasticsearchClient.bulk(bulkRequestBuilder.build());
-            if (bulkResponse.errors()) {
-                System.err.println("Bulk indexing had errors");
-                bulkResponse.items().forEach(item -> {
-                    if (item.error() != null) {
-                        System.err.println(item.error().reason());
-                    }
-                });
-            }
+            BulkRequest bulkRequest = buildBulkRequest(transports);
+            handleBulkResponse(elasticsearchClient.bulk(bulkRequest));
         } catch (IOException e) {
-            throw new ElasticSearchOperationFailedException("Bulk index failed", e);
+            throw new ElasticSearchOperationFailedException("Bulk index operation failed", e);
         }
     }
 
@@ -110,24 +96,10 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     @Override
     public List<String> getSuggestions(String textSearch, String fieldId) {
         try {
-            SearchRequest request = SearchRequest.of(s -> s.index(indexName)
-                    .suggest(sg -> sg.suggesters("suggestions", FieldSuggester.of(suggesterBuilder -> suggesterBuilder
-                            .completion(completionBuilder -> completionBuilder
-                                    .field(fieldId)
-                                    .skipDuplicates(true)
-                                    .size(5))
-                            .text(textSearch)))));
-            SearchResponse<Void> response = elasticsearchClient.search(request, Void.class);
-            List<Suggestion<Void>> completionSuggestions = response.suggest().get("suggestions");
-            if (completionSuggestions != null) {
-                return completionSuggestions.stream()
-                        .flatMap(suggestion -> suggestion.completion().options().stream())
-                        .map(CompletionSuggestOption::text)
-                        .collect(Collectors.toList());
-            }
-            return List.of();
+            SearchRequest request = buildSuggestionRequest(textSearch, fieldId);
+            return fetchSuggestions(elasticsearchClient.search(request, Void.class));
         } catch (IOException e) {
-            throw new ElasticSearchOperationFailedException("Failed to fetch suggestions", e);
+            throw new ElasticSearchOperationFailedException("Failed to fetch suggestions for text: " + textSearch, e);
         }
     }
 
@@ -143,24 +115,65 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
 
     @Override
     public void initializeMapping(InputStream inputStream) {
-        try {
-            boolean indexExists = elasticsearchClient
-                    .indices()
-                    .exists(e -> e.index(indexName))
-                    .value();
-            if (!indexExists) {
-                CreateIndexRequest createIndexRequest =
-                        CreateIndexRequest.of(b -> b.index(indexName).mappings(m -> m.withJson(inputStream)));
-
-                CreateIndexResponse createIndexResponse =
-                        elasticsearchClient.indices().create(createIndexRequest);
-
-                if (!createIndexResponse.acknowledged()) {
-                    throw new RuntimeException("Failed to create index: " + indexName);
-                }
+        try (inputStream) {
+            if (!isIndexExists()) {
+                createIndex(inputStream);
             }
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Failed to initialize mappings", e);
+        }
+    }
+
+    private SearchRequest buildSuggestionRequest(String textSearch, String fieldId) {
+        return SearchRequest.of(s -> s.index(indexName)
+                .suggest(sg -> sg.suggesters("suggestions", FieldSuggester.of(suggesterBuilder -> suggesterBuilder
+                        .completion(completionBuilder -> completionBuilder
+                                .field(fieldId)
+                                .skipDuplicates(true)
+                                .size(5))
+                        .text(textSearch)))));
+    }
+
+    private List<String> fetchSuggestions(SearchResponse<Void> response) {
+        List<Suggestion<Void>> completionSuggestions = response.suggest().get("suggestions");
+        return completionSuggestions == null
+                ? List.of()
+                : completionSuggestions.stream()
+                        .flatMap(suggestion -> suggestion.completion().options().stream())
+                        .map(CompletionSuggestOption::text)
+                        .collect(Collectors.toList());
+    }
+
+    private BulkRequest buildBulkRequest(List<? extends Transport> transports) {
+        BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
+        transports.forEach(transport -> {
+            transport.setId(getOrGenerateId(transport));
+            bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(
+                    i -> i.index(indexName).id(transport.getId()).document(mapToTransportDocument(transport))))));
+        });
+        return bulkRequestBuilder.build();
+    }
+
+    private void handleBulkResponse(BulkResponse bulkResponse) {
+        if (bulkResponse.errors()) {
+            bulkResponse.items().stream()
+                    .filter(item -> item.error() != null)
+                    .forEach(item -> System.err.println(item.error().reason()));
+            throw new ElasticSearchOperationFailedException("Bulk indexing encountered errors");
+        }
+    }
+
+    private boolean isIndexExists() throws IOException {
+        return elasticsearchClient.indices().exists(e -> e.index(indexName)).value();
+    }
+
+    private void createIndex(InputStream inputStream) throws IOException {
+        CreateIndexRequest createIndexRequest =
+                CreateIndexRequest.of(b -> b.index(indexName).mappings(m -> m.withJson(inputStream)));
+        CreateIndexResponse createIndexResponse = elasticsearchClient.indices().create(createIndexRequest);
+
+        if (!createIndexResponse.acknowledged()) {
+            throw new ElasticSearchOperationFailedException("Failed to create index: " + indexName);
         }
     }
 

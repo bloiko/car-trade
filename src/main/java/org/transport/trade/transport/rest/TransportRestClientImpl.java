@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.transport.trade.transport.dto.TransportDto;
@@ -21,11 +20,10 @@ public class TransportRestClientImpl implements TransportRestClient {
     private final ObjectMapper objectMapper;
 
     private final String carApiApplicationId;
-
     private final String carApiSecretKey;
 
     public TransportRestClientImpl(
-            @Autowired ObjectMapper objectMapper,
+            ObjectMapper objectMapper,
             @Value("${car.api.app.id}") String carApiApplicationId,
             @Value("${car.api.secret.key}") String carApiSecretKey) {
         this.objectMapper = objectMapper;
@@ -35,31 +33,34 @@ public class TransportRestClientImpl implements TransportRestClient {
 
     @Override
     public List<TransportDto> getTransports(int pageSize, int pageNum) {
+        String apiUrl = String.format(
+                "https://parseapi.back4app.com/classes/Carmodels_Car_Model_List?skip=%d&limit=%d&excludeKeys=Year",
+                pageSize * (pageNum - 1), pageSize);
+
         try {
-            URL url = new URL(String.format(
-                    "https://parseapi.back4app.com/classes/Carmodels_Car_Model_List?skip=%d&limit=%d&excludeKeys=Year",
-                    pageSize * (pageNum - 1), pageSize));
-
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            try {
-                urlConnection.setRequestProperty("X-Parse-Application-Id", carApiApplicationId);
-                urlConnection.setRequestProperty("X-Parse-REST-API-Key", carApiSecretKey);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-
-                TransportResultsDto transportResultsDto =
-                        objectMapper.readValue(stringBuilder.toString(), TransportResultsDto.class);
-                return transportResultsDto.getResults();
-            } finally {
-                urlConnection.disconnect();
-            }
+            HttpURLConnection urlConnection = createConnection(apiUrl);
+            return fetchTransports(urlConnection);
         } catch (Exception e) {
-            log.error("Error: {}", String.valueOf(e));
+            log.error("Error fetching transports: {}", e.getMessage(), e);
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+    }
+
+    private HttpURLConnection createConnection(String apiUrl) throws Exception {
+        URL url = new URL(apiUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestProperty("X-Parse-Application-Id", carApiApplicationId);
+        urlConnection.setRequestProperty("X-Parse-REST-API-Key", carApiSecretKey);
+        return urlConnection;
+    }
+
+    private List<TransportDto> fetchTransports(HttpURLConnection urlConnection) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+            String response = reader.lines().reduce("", String::concat);
+            TransportResultsDto transportResultsDto = objectMapper.readValue(response, TransportResultsDto.class);
+            return transportResultsDto.getResults();
+        } finally {
+            urlConnection.disconnect();
+        }
     }
 }

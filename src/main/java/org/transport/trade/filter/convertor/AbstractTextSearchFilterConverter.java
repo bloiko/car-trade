@@ -11,9 +11,11 @@ abstract class AbstractTextSearchFilterConverter implements FilterConverter {
 
     @Override
     public Query convert(@NonNull AbstractFilter filter) {
-        TextSearchFilter textSearchFilter = (TextSearchFilter) filter;
-        String text = textSearchFilter.getText();
+        if (!(filter instanceof TextSearchFilter textSearchFilter)) {
+            throw new IllegalArgumentException(
+                    "Expected TextSearchFilter but got " + filter.getClass().getSimpleName());
+        }
 
-        return buildMatchQuery(getEsFieldId(), text);
+        return buildMatchQuery(getEsFieldId(), textSearchFilter.getText());
     }
 }

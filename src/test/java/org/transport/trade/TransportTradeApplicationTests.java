@@ -9,7 +9,6 @@ class TransportTradeApplicationTests extends AbstractElasticSearchTest {
 
     @Test
     void contextLoads() {
-        // empty test
         assertTrue(true);
     }
 }

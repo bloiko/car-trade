@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.transport.trade.elastic.AbstractElasticSearchTest;
 import org.transport.trade.elastic.ElasticSearchTransportClientImpl;
 import org.transport.trade.filter.Filters;
+import org.transport.trade.filter.RangeFilter;
 import org.transport.trade.filter.TextSearchFilter;
 import org.transport.trade.transport.dto.TransportsResponse;
 import org.transport.trade.transport.entity.Country;
@@ -32,43 +33,53 @@ class TransportControllerTest extends AbstractElasticSearchTest {
             new BigInteger("10000"),
             "Kyiv");
 
+    private static final Transport NEW_TRANSPORT = new Transport(
+            "TRANSPORT_ID_TESLA_AIR",
+            TransportType.AIR_TRANSPORT,
+            "Sedan",
+            Country.CHINA,
+            2020,
+            "Tesla",
+            "Model S",
+            new BigInteger("10000"),
+            "Region test");
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ElasticSearchTransportClientImpl elasticSearchTransportClient;
+    private ElasticSearchTransportClientImpl elasticSearchClient;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void testGetTransportById() throws Exception {
-        String savedTransportId = elasticSearchTransportClient.index(TRANSPORT);
+        String id = elasticSearchClient.index(TRANSPORT);
 
-        String responseBody = mockMvc.perform(get("/transports/transport/" + savedTransportId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String response = performGet("/transports/" + id);
 
-        assertEquals(objectMapper.writeValueAsString(TRANSPORT), responseBody);
+        assertEquals(asJsonString(TRANSPORT), response);
     }
 
     @Test
-    void testAddTransport() {}
+    void testAddTransport() throws Exception {
+        assertNull(elasticSearchClient.getById("TRANSPORT_ID_TESLA_AIR"));
+
+        performPost("/transports", NEW_TRANSPORT);
+
+        Transport addedTransport = elasticSearchClient.getById("TRANSPORT_ID_TESLA_AIR");
+        assertNotNull(addedTransport);
+        assertEquals(NEW_TRANSPORT, addedTransport);
+    }
 
     @Test
     void testDeleteTransport() throws Exception {
-        String savedTransportId = elasticSearchTransportClient.index(TRANSPORT);
+        String id = elasticSearchClient.index(TRANSPORT);
+        assertNotNull(elasticSearchClient.getById(id));
 
-        assertNotNull(elasticSearchTransportClient.getById(savedTransportId));
+        performDelete("/transports/" + id);
 
-        mockMvc.perform(delete("/transports/transport/" + savedTransportId))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertNull(elasticSearchTransportClient.getById(savedTransportId));
+        assertNull(elasticSearchClient.getById(id));
     }
 
     @Test
@@ -76,18 +87,48 @@ class TransportControllerTest extends AbstractElasticSearchTest {
         Filters filters = new Filters();
         filters.getFilters().add(new TextSearchFilter("transportType", TransportType.BUSES.toString()));
 
-        String filterRequest = objectMapper.writeValueAsString(filters);
+        String response = performPost("/transports/filter", filters);
 
-        String responseBody = mockMvc.perform(post("/transports/filter")
-                        .contentType("application/json")
-                        .content(filterRequest))
+        TransportsResponse responseObj = objectMapper.readValue(response, TransportsResponse.class);
+        assertEquals(2, responseObj.getTransports().size());
+    }
+
+    @Test
+    void testFilterTransportsWithDateRange() throws Exception {
+        Filters filters = new Filters();
+        filters.getFilters().add(new RangeFilter("manufacturerYear", "1899", "1901"));
+
+        String response = performPost("/transports/filter", filters);
+
+        TransportsResponse responseObj = objectMapper.readValue(response, TransportsResponse.class);
+        assertEquals(1, responseObj.getTransports().size());
+    }
+
+    private String asJsonString(Object obj) throws Exception {
+        return objectMapper.writeValueAsString(obj);
+    }
+
+    private String performGet(String url) throws Exception {
+        return mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+    }
 
-        TransportsResponse response = objectMapper.readValue(responseBody, TransportsResponse.class);
+    private String performPost(String url, Object content) throws Exception {
+        return mockMvc.perform(post(url).contentType("application/json").content(asJsonString(content)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
 
-        assertEquals(2, response.getTransports().size());
+    private void performDelete(String url) throws Exception {
+        mockMvc.perform(delete(url))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
     }
 }

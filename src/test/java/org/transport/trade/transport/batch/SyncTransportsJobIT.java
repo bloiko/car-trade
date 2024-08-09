@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
@@ -55,7 +54,7 @@ class SyncTransportsJobIT {
 
     @Test
     void testSyncTransportsJob() throws Exception {
-        when(transportRestClient.getTransports(anyInt(), anyInt())).thenReturn(getTransportDtos());
+        mockTransportRestClient();
 
         JobParameters jobParameters = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
@@ -67,38 +66,46 @@ class SyncTransportsJobIT {
 
         verify(transportRestClient, times(2)).getTransports(anyInt(), anyInt());
 
+        assertJobCompletedWithExpectedResults(jobExecution);
+    }
+
+    private void mockTransportRestClient() {
+        when(transportRestClient.getTransports(anyInt(), anyInt())).thenReturn(getTransportDtos());
+    }
+
+    private void assertJobCompletedWithExpectedResults(JobExecution jobExecution) throws InterruptedException {
         int retry = 0;
-        while (retry < 5) {
-            ExitStatus exitStatus = getExitStatus(jobExecution);
-            if (exitStatus == ExitStatus.COMPLETED) {
+        while (retry++ < 5) {
+            if (isCompleted(jobExecution)) {
                 verifyIndexedTransports();
-                break;
+                return;
             } else {
                 Thread.sleep(100);
-                retry++;
             }
         }
     }
 
-    private @NotNull ExitStatus getExitStatus(JobExecution jobExecution) {
-        String jobName = jobExecution.getJobInstance().getJobName();
+    private boolean isCompleted(JobExecution jobExecution) {
         return jobRepository
-                .getLastJobExecution(jobName, jobExecution.getJobParameters())
-                .getExitStatus();
+                        .getLastJobExecution(
+                                jobExecution.getJobInstance().getJobName(), jobExecution.getJobParameters())
+                        .getExitStatus()
+                == ExitStatus.COMPLETED;
     }
 
     private void verifyIndexedTransports() {
+        Filters filters = createFilters();
+        TransportsResponse response = transportController.filterTransports(filters);
+        assertEquals(4, response.getTransports().size());
+    }
+
+    private Filters createFilters() {
         Filters filters = new Filters();
         filters.setFilters(List.of(new TextSearchFilter("brand", "Audi"), new TextSearchFilter("bodyType", "Sedan")));
-        TransportsResponse transportsResponse = transportController.filterTransports(filters);
-
-        assertEquals(4, transportsResponse.getTransports().size());
+        return filters;
     }
 
     private static List<TransportDto> getTransportDtos() {
-        TransportDto transport1 = new TransportDto("S7", "Audi", "Sedan");
-        TransportDto transport2 = new TransportDto("e5", "Audi", "Sedan");
-
-        return Arrays.asList(transport1, transport2);
+        return Arrays.asList(new TransportDto("S7", "Audi", "Sedan"), new TransportDto("e5", "Audi", "Sedan"));
     }
 }
