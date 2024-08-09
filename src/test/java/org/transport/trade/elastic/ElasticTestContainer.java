@@ -2,7 +2,7 @@ package org.transport.trade.elastic;
 
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
-class ElasticTestContainer extends ElasticsearchContainer {
+public class ElasticTestContainer extends ElasticsearchContainer {
 
     private static final String DOCKER_ELASTIC = "docker.elastic.co/elasticsearch/elasticsearch:7.17.6";
 

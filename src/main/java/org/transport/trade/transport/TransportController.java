@@ -46,7 +46,7 @@ public class TransportController {
     }
 
     @PostMapping("/filter")
-    TransportsResponse filterTransports(@RequestBody Filters filters) {
+    public TransportsResponse filterTransports(@RequestBody Filters filters) {
         notNull(filters, "Filters cannot be null");
 
         co.elastic.clients.elasticsearch.core.SearchRequest esSearchRequest = filtersConverter.convert(filters);
