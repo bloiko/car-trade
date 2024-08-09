@@ -1,13 +1,13 @@
 package org.transport.trade.transport;
 
-import static org.apache.commons.lang3.Validate.notNull;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.transport.trade.elastic.ElasticSearchTransportClient;
 import org.transport.trade.filter.Filters;
 import org.transport.trade.filter.convertor.FiltersConverter;
 import org.transport.trade.transport.dto.TransportsResponse;
+
+import static org.apache.commons.lang3.Validate.notNull;
 
 @RestController
 @RequestMapping("/transports")
@@ -46,7 +46,7 @@ public class TransportController {
     }
 
     @PostMapping("/filter")
-    TransportsResponse filterTransports(@RequestBody Filters filters) {
+    public TransportsResponse filterTransports(@RequestBody Filters filters) {
         notNull(filters, "Filters cannot be null");
 
         co.elastic.clients.elasticsearch.core.SearchRequest esSearchRequest = filtersConverter.convert(filters);
