@@ -13,7 +13,6 @@ public class ElasticTestContainer extends ElasticsearchContainer {
     public ElasticTestContainer() {
         super(DOCKER_ELASTIC);
         this.addFixedExposedPort(9200, 9200);
-        //        this.addFixedExposedPort(9301, 9301);
         this.addEnv(CLUSTER_NAME, ELASTIC_SEARCH);
     }
 }
