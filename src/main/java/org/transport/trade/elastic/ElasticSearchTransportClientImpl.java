@@ -12,12 +12,6 @@ import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
 import co.elastic.clients.elasticsearch.core.search.*;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.transport.trade.transport.Transport;
-import org.transport.trade.transport.dto.TransportsResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -25,6 +19,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.transport.trade.transport.Transport;
+import org.transport.trade.transport.dto.TransportsResponse;
 
 @Service
 public class ElasticSearchTransportClientImpl implements ElasticSearchTransportClient {
@@ -43,7 +42,8 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
     public Transport getById(String id) {
         try {
             return mapToTransport(elasticsearchClient
-                    .get(s -> s.index(indexName).id(id), TransportDocument.class).source());
+                    .get(s -> s.index(indexName).id(id), TransportDocument.class)
+                    .source());
         } catch (IOException e) {
             throw new ElasticSearchOperationFailedException("Get by id failed", e);
         }
@@ -126,15 +126,19 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
 
     private SearchRequest buildSuggestionRequest(String textSearch, String fieldId) {
         return SearchRequest.of(s -> s.index(indexName)
-                                      .suggest(sg -> sg.suggesters("suggestions", FieldSuggester.of(suggesterBuilder -> suggesterBuilder.completion(completionBuilder -> completionBuilder.field(fieldId)
-                                                                                                                                                                                          .skipDuplicates(true)
-                                                                                                                                                                                          .size(5))
-                                                                                                                                        .text(textSearch)))));
+                .suggest(sg -> sg.suggesters("suggestions", FieldSuggester.of(suggesterBuilder -> suggesterBuilder
+                        .completion(completionBuilder -> completionBuilder
+                                .field(fieldId)
+                                .skipDuplicates(true)
+                                .size(5))
+                        .text(textSearch)))));
     }
 
     private List<String> fetchSuggestions(SearchResponse<Void> response) {
         List<Suggestion<Void>> completionSuggestions = response.suggest().get("suggestions");
-        return completionSuggestions == null ? List.of() : completionSuggestions.stream()
+        return completionSuggestions == null
+                ? List.of()
+                : completionSuggestions.stream()
                         .flatMap(suggestion -> suggestion.completion().options().stream())
                         .map(CompletionSuggestOption::text)
                         .collect(Collectors.toList());
@@ -144,19 +148,17 @@ public class ElasticSearchTransportClientImpl implements ElasticSearchTransportC
         BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
         transports.forEach(transport -> {
             transport.setId(getOrGenerateId(transport));
-            bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(i -> i.index(indexName)
-                                                                                                .id(transport.getId())
-                                                                                                .document(mapToTransportDocument(transport))))));
+            bulkRequestBuilder.operations(BulkOperation.of(b -> b.index(IndexOperation.of(
+                    i -> i.index(indexName).id(transport.getId()).document(mapToTransportDocument(transport))))));
         });
         return bulkRequestBuilder.build();
     }
 
     private void handleBulkResponse(BulkResponse bulkResponse) {
         if (bulkResponse.errors()) {
-            bulkResponse.items()
-                        .stream()
-                        .filter(item -> item.error() != null)
-                        .forEach(item -> System.err.println(item.error().reason()));
+            bulkResponse.items().stream()
+                    .filter(item -> item.error() != null)
+                    .forEach(item -> System.err.println(item.error().reason()));
             throw new ElasticSearchOperationFailedException("Bulk indexing encountered errors");
         }
     }

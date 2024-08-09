@@ -11,14 +11,16 @@ abstract class AbstractRangeFilterConverter implements FilterConverter {
     @Override
     public Query convert(@NonNull AbstractFilter filter) {
         if (!(filter instanceof RangeFilter rangeFilter)) {
-            throw new IllegalArgumentException("Expected RangeFilter but got " + filter.getClass().getSimpleName());
+            throw new IllegalArgumentException(
+                    "Expected RangeFilter but got " + filter.getClass().getSimpleName());
         }
 
         return buildRangeQuery(rangeFilter.getFrom(), rangeFilter.getTo());
     }
 
     private Query buildRangeQuery(String from, String to) {
-        return RangeQuery.of(fn -> fn.field(getEsFieldId()).from(from != null ? from : "").to(to != null ? to : ""))
-                         ._toQuery();
+        return RangeQuery.of(fn ->
+                        fn.field(getEsFieldId()).from(from != null ? from : "").to(to != null ? to : ""))
+                ._toQuery();
     }
 }

@@ -1,6 +1,11 @@
 package org.transport.trade.transport;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,12 +18,6 @@ import org.transport.trade.filter.TextSearchFilter;
 import org.transport.trade.transport.dto.TransportsResponse;
 import org.transport.trade.transport.entity.Country;
 import org.transport.trade.transport.entity.TransportType;
-
-import java.math.BigInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 class TransportControllerTest extends AbstractElasticSearchTest {
@@ -34,8 +33,16 @@ class TransportControllerTest extends AbstractElasticSearchTest {
             new BigInteger("10000"),
             "Kyiv");
 
-    private static final Transport NEW_TRANSPORT =
-            new Transport("TRANSPORT_ID_TESLA_AIR", TransportType.AIR_TRANSPORT, "Sedan", Country.CHINA, 2020, "Tesla", "Model S", new BigInteger("10000"), "Region test");
+    private static final Transport NEW_TRANSPORT = new Transport(
+            "TRANSPORT_ID_TESLA_AIR",
+            TransportType.AIR_TRANSPORT,
+            "Sedan",
+            Country.CHINA,
+            2020,
+            "Tesla",
+            "Model S",
+            new BigInteger("10000"),
+            "Region test");
 
     @Autowired
     private MockMvc mockMvc;

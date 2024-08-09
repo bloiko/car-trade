@@ -1,18 +1,17 @@
 package org.transport.trade.transport.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.transport.trade.transport.dto.TransportDto;
-import org.transport.trade.transport.dto.TransportResultsDto;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.transport.trade.transport.dto.TransportDto;
+import org.transport.trade.transport.dto.TransportResultsDto;
 
 @Slf4j
 @Component
@@ -23,7 +22,8 @@ public class TransportRestClientImpl implements TransportRestClient {
     private final String carApiApplicationId;
     private final String carApiSecretKey;
 
-    public TransportRestClientImpl(ObjectMapper objectMapper,
+    public TransportRestClientImpl(
+            ObjectMapper objectMapper,
             @Value("${car.api.app.id}") String carApiApplicationId,
             @Value("${car.api.secret.key}") String carApiSecretKey) {
         this.objectMapper = objectMapper;
@@ -33,8 +33,9 @@ public class TransportRestClientImpl implements TransportRestClient {
 
     @Override
     public List<TransportDto> getTransports(int pageSize, int pageNum) {
-        String apiUrl =
-                String.format("https://parseapi.back4app.com/classes/Carmodels_Car_Model_List?skip=%d&limit=%d&excludeKeys=Year", pageSize * (pageNum - 1), pageSize);
+        String apiUrl = String.format(
+                "https://parseapi.back4app.com/classes/Carmodels_Car_Model_List?skip=%d&limit=%d&excludeKeys=Year",
+                pageSize * (pageNum - 1), pageSize);
 
         try {
             HttpURLConnection urlConnection = createConnection(apiUrl);
