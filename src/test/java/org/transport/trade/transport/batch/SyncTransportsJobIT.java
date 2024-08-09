@@ -1,5 +1,10 @@
 package org.transport.trade.transport.batch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+import java.util.Arrays;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,12 +23,6 @@ import org.transport.trade.transport.TransportController;
 import org.transport.trade.transport.dto.TransportDto;
 import org.transport.trade.transport.dto.TransportsResponse;
 import org.transport.trade.transport.rest.TransportRestClient;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @SpringBatchTest
@@ -83,7 +82,9 @@ class SyncTransportsJobIT {
 
     private @NotNull ExitStatus getExitStatus(JobExecution jobExecution) {
         String jobName = jobExecution.getJobInstance().getJobName();
-        return jobRepository.getLastJobExecution(jobName, jobExecution.getJobParameters()).getExitStatus();
+        return jobRepository
+                .getLastJobExecution(jobName, jobExecution.getJobParameters())
+                .getExitStatus();
     }
 
     private void verifyIndexedTransports() {
