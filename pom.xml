@@ -135,7 +135,7 @@
                         <palantirJavaFormat>
                             <version>2.48.0</version>
                             <style>PALANTIR</style>
-                            <formatJavadoc>true</formatJavadoc>>
+                            <formatJavadoc>true</formatJavadoc>
                         </palantirJavaFormat>
                     </java>
                 </configuration>

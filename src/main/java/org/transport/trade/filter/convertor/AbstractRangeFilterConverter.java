@@ -10,11 +10,15 @@ abstract class AbstractRangeFilterConverter implements FilterConverter {
 
     @Override
     public Query convert(@NonNull AbstractFilter filter) {
-        RangeFilter rangeFilter = (RangeFilter) filter;
+        if (!(filter instanceof RangeFilter rangeFilter)) {
+            throw new IllegalArgumentException("Expected RangeFilter but got " + filter.getClass().getSimpleName());
+        }
 
-        String from = rangeFilter.getFrom();
-        String to = rangeFilter.getTo();
+        return buildRangeQuery(rangeFilter.getFrom(), rangeFilter.getTo());
+    }
 
-        return RangeQuery.of(fn -> fn.field(getEsFieldId()).from(from).to(to))._toQuery();
+    private Query buildRangeQuery(String from, String to) {
+        return RangeQuery.of(fn -> fn.field(getEsFieldId()).from(from != null ? from : "").to(to != null ? to : ""))
+                         ._toQuery();
     }
 }
